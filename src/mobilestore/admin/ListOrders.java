@@ -23,10 +23,10 @@ public class ListOrders extends javax.swing.JInternalFrame {
     private DefaultTableModel tableModel;
     private void connectAndLoadData() {
     try (Connection connection = ConnectionDB.getConnection()) {
+        System.out.print(connection);
         String query = "SELECT orders.id, users.fullname, orders.address, orders.phone, "
                 + "orders.quantity, orders.total_price, orders.date, "
                 + "orders.status FROM orders JOIN users ON orders.user_id = users.id;";
-//        int columnCount = CountColumn.countColumns(connection, "orders");
         try (PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery()) {
             tableModel.setRowCount(0);
