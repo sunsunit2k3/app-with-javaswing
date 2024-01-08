@@ -37,6 +37,7 @@ public class AdminLogin extends javax.swing.JFrame {
         backBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(0, 204, 102));
 
         jLabel4.setFont(new java.awt.Font("Bahnschrift", 1, 24)); // NOI18N
         jLabel4.setText("ADMIN LOGIN");
@@ -47,6 +48,7 @@ public class AdminLogin extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel2.setText("Password");
 
+        loginBtn.setBackground(new java.awt.Color(0, 255, 255));
         loginBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         loginBtn.setText("Login");
         loginBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -55,6 +57,7 @@ public class AdminLogin extends javax.swing.JFrame {
             }
         });
 
+        backBtn.setBackground(new java.awt.Color(0, 255, 255));
         backBtn.setText("Back ");
         backBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

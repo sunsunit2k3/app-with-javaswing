@@ -225,7 +225,8 @@ public class ListUsers extends javax.swing.JInternalFrame {
                     statement.setString(3, email);
                     // Assuming "id" is the primary key in your table, adjust accordingly
                     int selectedRow = userTable.getSelectedRow();
-                    int id = Integer.parseInt(tblModel.getValueAt(selectedRow, 0).toString());
+                    int modelRow = userTable.convertRowIndexToModel(selectedRow);
+                    int id = Integer.parseInt(tblModel.getValueAt(modelRow, 0).toString());
                     statement.setInt(4, id);
 
                     // Execute the update

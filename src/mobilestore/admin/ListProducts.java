@@ -56,7 +56,7 @@ public class ListProducts extends javax.swing.JInternalFrame {
         jFrame1 = new javax.swing.JFrame();
         jFrame2 = new javax.swing.JFrame();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        productTable = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         exportBtn = new javax.swing.JButton();
         importBtn = new javax.swing.JButton();
@@ -104,29 +104,29 @@ public class ListProducts extends javax.swing.JInternalFrame {
         setIconifiable(true);
         setMaximizable(true);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        productTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {},
             new String [] {
                 "Id", "Title", "Image", "Description", "Price", "Quantity"
             }
         ));
-        tableModel = (DefaultTableModel) jTable1.getModel();
+        tableModel = (DefaultTableModel) productTable.getModel();
         connectAndLoadData();
-        jTable1.addAncestorListener(new javax.swing.event.AncestorListener() {
+        productTable.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                jTable1AncestorAdded(evt);
+                productTableAncestorAdded(evt);
             }
             public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
             }
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+        productTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jTable1MouseClicked(evt);
+                productTableMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(productTable);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel1.setText("Search");
@@ -306,16 +306,16 @@ public class ListProducts extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void exportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportBtnActionPerformed
-        JTable table = jTable1;
+        JTable table = productTable;
         File file = new File("./src/csv/data.csv");
         String message = ExportToCSV.exportToCSV(table, file);
         MessageDialog messageDialog = new MessageDialog();
         messageDialog.inforMessegeDiaLog(message, "Alert!!");
     }//GEN-LAST:event_exportBtnActionPerformed
 
-    private void jTable1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jTable1AncestorAdded
+    private void productTableAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_productTableAncestorAdded
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTable1AncestorAdded
+    }//GEN-LAST:event_productTableAncestorAdded
 
     private void importBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importBtnActionPerformed
         String path = jLabel2.getText();
@@ -348,20 +348,19 @@ public class ListProducts extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_searchTFActionPerformed
 
     private void searchTFKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchTFKeyReleased
-        DefaultTableModel obj = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel obj = (DefaultTableModel) productTable.getModel();
         TableRowSorter <DefaultTableModel> obj1 = new TableRowSorter<>(obj);
-        jTable1.setRowSorter(obj1);
+        productTable.setRowSorter(obj1);
         obj1.setRowFilter(RowFilter.regexFilter(searchTF.getText()));
     }//GEN-LAST:event_searchTFKeyReleased
 
     private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
-        DefaultTableModel obj = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel tableModel = (DefaultTableModel) productTable.getModel();
         MessageDialog messageDialog = new MessageDialog();
-        if(jTable1.getSelectedRowCount()==1){
-            int selectedRow = jTable1.getSelectedRow();
-            int idColumnIndex = 0; 
-            Object idToDelete = jTable1.getValueAt(selectedRow, idColumnIndex);
-            obj.removeRow(selectedRow);
+        if(productTable.getSelectedRowCount()==1){
+            int selectedRow = productTable.getSelectedRow();
+            int modelRow = productTable.convertRowIndexToModel(selectedRow);
+            Object idToDelete = productTable.getValueAt(selectedRow, 0);
             Connection connection = null;
             try {
                 connection = ConnectionDB.getConnection();
@@ -371,13 +370,14 @@ public class ListProducts extends javax.swing.JInternalFrame {
                 statement.executeUpdate();
                 statement.close();
                 connection.close();
+                tableModel.removeRow(modelRow);
                 messageDialog.inforMessegeDiaLog("Delete success", "Alert !!");
             } catch (SQLException e) {
                 e.printStackTrace();
                 // Handle database-related exceptions
             }
         }else{
-            if(jTable1.getRowCount()==0){
+            if(productTable.getRowCount()==0){
                 messageDialog.inforMessegeDiaLog("Table is Empty", "Alert !!");
             }else{
                 messageDialog.inforMessegeDiaLog("Please select single row for delete", "Alert !!");            }
@@ -396,9 +396,9 @@ public class ListProducts extends javax.swing.JInternalFrame {
     }
     
     private void updateBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateBtnActionPerformed
-        DefaultTableModel tblModel = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel tblModel = (DefaultTableModel) productTable.getModel();
         MessageDialog messageDialog = new MessageDialog();
-        if (jTable1.getSelectedRowCount() == 1) {
+        if (productTable.getSelectedRowCount() == 1) {
             String title = titleTF.getText();
             String image = imageTF.getText();
             String description = descriptionTF.getText();
@@ -419,22 +419,23 @@ public class ListProducts extends javax.swing.JInternalFrame {
                     statement.setString(5, quantity);
 
                     // Assuming "id" is the primary key in your table, adjust accordingly
-                    int selectedRow = jTable1.getSelectedRow();
-                    int id = Integer.parseInt(tblModel.getValueAt(selectedRow, 0).toString());
+                    int selectedRow = productTable.getSelectedRow();
+                    int modelRow = productTable.convertRowIndexToModel(selectedRow);
+                    int id = Integer.parseInt(tblModel.getValueAt(modelRow, 0).toString());
                     statement.setInt(6, id);
 
                     // Execute the update
                     statement.executeUpdate();
 
                     // Update the table model
-                    tblModel.setValueAt(title, selectedRow, 1);
-                    tblModel.setValueAt(image, selectedRow, 2);
-                    tblModel.setValueAt(description, selectedRow, 3);
-                    tblModel.setValueAt(price, selectedRow, 4);
-                    tblModel.setValueAt(quantity, selectedRow, 5);
+                    tblModel.setValueAt(title, modelRow, 1);
+                    tblModel.setValueAt(image, modelRow, 2);
+                    tblModel.setValueAt(description, modelRow, 3);
+                    tblModel.setValueAt(price, modelRow, 4);
+                    tblModel.setValueAt(quantity, modelRow, 5);
 
                     // Refresh the table
-                    jTable1.repaint();
+                    productTable.repaint();
                     messageDialog.inforMessegeDiaLog("Update Successfully...!", "Alert !!");
                 }catch (Error e) {
                 messageDialog.inforMessegeDiaLog("Error Update...!", "Alert !!");
@@ -460,13 +461,15 @@ public class ListProducts extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_SelectImageActionPerformed
 
-    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-        DefaultTableModel tblModel = (DefaultTableModel) jTable1.getModel();
-        String tblTitle = tblModel.getValueAt(jTable1.getSelectedRow(), 1).toString();
-        String tblImage = tblModel.getValueAt(jTable1.getSelectedRow(), 2).toString();
-        String tblDescription = tblModel.getValueAt(jTable1.getSelectedRow(), 3).toString();
-        String tblPrice = tblModel.getValueAt(jTable1.getSelectedRow(), 4).toString();
-        String tblQuantity = tblModel.getValueAt(jTable1.getSelectedRow(), 5).toString();
+    private void productTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productTableMouseClicked
+        DefaultTableModel tblModel = (DefaultTableModel) productTable.getModel();
+        int selectedRow = productTable.getSelectedRow();
+        int modelRow = productTable.convertRowIndexToModel(selectedRow);
+        String tblTitle = tblModel.getValueAt(modelRow, 1).toString();
+        String tblImage = tblModel.getValueAt(modelRow, 2).toString();
+        String tblDescription = tblModel.getValueAt(modelRow, 3).toString();
+        String tblPrice = tblModel.getValueAt(modelRow, 4).toString();
+        String tblQuantity = tblModel.getValueAt(modelRow, 5).toString();
         
         //set text field
         titleTF.setText(tblTitle);
@@ -474,7 +477,7 @@ public class ListProducts extends javax.swing.JInternalFrame {
         descriptionTF.setText(tblDescription);
         priceTF.setText(tblPrice);
         quantityTF.setText(tblQuantity);
-    }//GEN-LAST:event_jTable1MouseClicked
+    }//GEN-LAST:event_productTableMouseClicked
 
     private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
         String image = imageTF.getText();
@@ -485,7 +488,7 @@ public class ListProducts extends javax.swing.JInternalFrame {
         Connection connection = null;
         String message ;
         MessageDialog messageDialog = new MessageDialog();
-        DefaultTableModel tblModel = (DefaultTableModel) jTable1.getModel();
+        DefaultTableModel tblModel = (DefaultTableModel) productTable.getModel();
         if(image.equals("")||price.equals("")||title.equals("")||description.equals("")||quantity.equals("")){
             message = "Please enter all data";
             messageDialog.inforMessegeDiaLog(message, "Alert !!");
@@ -547,8 +550,8 @@ public class ListProducts extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField priceTF;
+    private javax.swing.JTable productTable;
     private javax.swing.JTextField quantityTF;
     private javax.swing.JTextField searchTF;
     private javax.swing.JButton selectFileBtn;

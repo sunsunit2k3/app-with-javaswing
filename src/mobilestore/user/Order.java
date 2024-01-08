@@ -187,7 +187,8 @@ SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateChooser.getDate();
             String phone = phoneTF.getText();
             int selectedRow = orderTable.getSelectedRow();
-            if("Chờ Duyệt".equals(tblModel.getValueAt(selectedRow, 4).toString())){
+            int modelRow = orderTable.convertRowIndexToModel(selectedRow);
+            if("Chờ Duyệt".equals(tblModel.getValueAt(modelRow, 4).toString())){
                 try (Connection connection = ConnectionDB.getConnection()) {
                     String sql = "UPDATE orders SET address=?, date=?, phone=? WHERE id=?";
                     try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -195,20 +196,16 @@ SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                         statement.setString(2, new SimpleDateFormat("yyyy-MM-dd").format(date));
                         statement.setString(3, phone);
 
-                        // Assuming "id" is the primary key in your table, adjust accordingly
-                        int id = Integer.parseInt(tblModel.getValueAt(selectedRow, 0).toString());
+                        int id = Integer.parseInt(tblModel.getValueAt(modelRow, 0).toString());
                         statement.setInt(4, id);
-
-                        // Execute the update
+                                            
                         int rowsAffected = statement.executeUpdate();
 
                         if (rowsAffected > 0) {
-                            // Update the table model
                             tblModel.setValueAt(address, selectedRow, 1);
                             tblModel.setValueAt(phone, selectedRow, 2);
                             tblModel.setValueAt(new SimpleDateFormat("yyyy-MM-dd").format(date), selectedRow, 5);
 
-                            // Refresh the table
                             orderTable.repaint();
                             messageDialog.inforMessegeDiaLog("Update Successfully...!", "Alert !!");
                         } else {
